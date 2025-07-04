@@ -3,10 +3,13 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit
 from PyQt6.QtCore import Qt
+from calculator import evaluateExpression, PyCalc
 
 WINDOW_SIZE = 400
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
+
+
 class PyCalcWindow(QMainWindow):
     """Create window and its parameters."""
 
@@ -24,7 +27,7 @@ class PyCalcWindow(QMainWindow):
     
 
     def _createDisplay(self):
-        """Creates Display for displaying numbers and results"""
+        """Creates Display for displaying numbers and results."""
         self.display = QLineEdit()
         self.display.setFixedHeight(DISPLAY_HEIGHT)
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -33,7 +36,7 @@ class PyCalcWindow(QMainWindow):
 
 
     def _createButtons(self):
-        """Create buttons on calculator"""
+        """Create buttons on calculator."""
         self.buttonMap = {}
         buttonsLayout = QGridLayout()
         keyBoard = [
@@ -49,12 +52,35 @@ class PyCalcWindow(QMainWindow):
                 buttonsLayout.addWidget(self.buttonMap[key], row, col)
         self.generalLayout.addLayout(buttonsLayout)
 
+
+    def setDisplayText(self, text):
+        """Set the displays text."""
+        self.display.setText(text)
+        self.display.setFocus()
+
+
+    def displayText(self):
+        """Get the display's text."""
+        return self.display.text()
+    
+
+    def clearDisplay(self):
+        """Clear the display."""
+        self.setDisplayText("")
+
+    
+    evaluateExpression = evaluateExpression
+
+        
+
 def main():
     """Executes window."""
     pycalcApp = QApplication([])
     pycalcWindow = PyCalcWindow()
     pycalcWindow.show()
+    PyCalc(model=evaluateExpression, view=pycalcWindow)
     sys.exit(pycalcApp.exec())
+    
 
 if __name__ == "__main__":
     main()
