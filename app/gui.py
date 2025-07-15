@@ -4,10 +4,20 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit
 from PyQt6.QtCore import Qt
 from calculator import evaluateExpression, PyCalc
-
 WINDOW_SIZE = 400
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
+
+
+class encryptedWindow(QMainWindow):
+    """Create window with encrypted data"""
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Encrypted Data")
+        self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
+        self.generalLayout = QVBoxLayout()
+        self.centralWidget = QWidget(self)
+
 
 
 class PyCalcWindow(QMainWindow):
@@ -24,6 +34,7 @@ class PyCalcWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
         self._createDisplay()
         self._createButtons()
+        self.encryptedWindowInstance = None
     
 
     def _createDisplay(self):
@@ -68,10 +79,12 @@ class PyCalcWindow(QMainWindow):
         """Clear the display."""
         self.setDisplayText("")
 
-    
-    evaluateExpression = evaluateExpression
 
-        
+    def trigger(self):
+        if self.display.text() == "1787569":
+            self.encryptedWindowInstance = encryptedWindow()
+            self.encryptedWindowInstance.show() 
+
 
 def main():
     """Executes window."""
@@ -82,5 +95,11 @@ def main():
     sys.exit(pycalcApp.exec())
     
 
+
 if __name__ == "__main__":
     main()
+
+
+
+
+

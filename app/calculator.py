@@ -1,6 +1,5 @@
 """Calculation and controll"""
 from functools import partial
-
 ERROR_MSG = "ERROR!"
 
 
@@ -25,6 +24,7 @@ class PyCalc:
     def calculateResult(self):
         result = self._evaluate(expression=self._view.displayText())
         self._view.setDisplayText(result)
+        self._view.trigger()
 
     
     def _buildExpression(self, subExpression):
