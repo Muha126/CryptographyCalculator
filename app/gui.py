@@ -11,7 +11,9 @@ BUTTON_SIZE = 40
 
 class encryptedWindow(QMainWindow):
     """Create window with encrypted data"""
+
     def __init__(self):
+        """Window and its parameters."""
         super().__init__()
         self.setWindowTitle("Encrypted Data")
         self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
@@ -81,7 +83,7 @@ class PyCalcWindow(QMainWindow):
 
 
     def trigger(self):
-        if self.display.text() == "1787569":
+        if self.display.text() == "1337*1337":
             self.encryptedWindowInstance = encryptedWindow()
             self.encryptedWindowInstance.show() 
 

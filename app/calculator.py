@@ -22,9 +22,10 @@ class PyCalc:
 
     
     def calculateResult(self):
+        self._view.trigger()
         result = self._evaluate(expression=self._view.displayText())
         self._view.setDisplayText(result)
-        self._view.trigger()
+        
 
     
     def _buildExpression(self, subExpression):
