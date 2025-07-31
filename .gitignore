@@ -6,5 +6,4 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-enc_data.db
-keys.db
+*.db

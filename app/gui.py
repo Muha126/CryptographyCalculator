@@ -1,10 +1,11 @@
 """GUI for calculator."""
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit
+from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
 from PyQt6.QtCore import Qt
 from calculator import evaluateExpression, PyCalc
 import usb.core
+import wmi
 import os
 import sqlite3
 
@@ -17,6 +18,14 @@ enc_path = os.path.join(enc_dir, "enc_data.db")
 key_dir = 'C:/Users/umaro/Desktop/Projects/CryptographyCalculator/keys'
 key_path = os.path.join(key_dir, "keys.db")
 
+def get_usb_drives():
+    c = wmi.WMI()
+    drives = []
+    for disk in c.Win32_LogicalDisk(DriveType=2):
+        drives.append((disk.DeviceID, disk.VolumeName))
+    return drives
+
+usb_drives = get_usb_drives()
 
 connection = sqlite3.connect(enc_path)
 cursor = connection.cursor()
@@ -46,10 +55,32 @@ class encryptedWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Encrypted Data")
         self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
-        self.generalLayout = QVBoxLayout()
         self.centralWidget = QWidget(self)
+        self.setCentralWidget(self.centralWidget)
+        self.generalLayout = QVBoxLayout()
+        self.centralWidget.setLayout(self.generalLayout)
         self.input = QLineEdit(self)
-        self.input.move(150,150)
+        self.input.setFixedSize(350,50)
+        self.input.move(30,30)
+        button = QPushButton("Encrypt and write")
+        
+        button.clicked.connect(self.get)
+        self.generalLayout.addWidget(button)
+        self.UsbSelector = QComboBox()
+        self.generalLayout.addWidget(self.UsbSelector)
+        self.refresh_usb_list()
+    
+    
+    def refresh_usb_list(self):
+        self.UsbSelector.clear()
+        drives = get_usb_drives()
+        for device_id, volume_name in drives:
+            display_text = f"{device_id} = {volume_name}" if volume_name else device_id
+            self.UsbSelector.addItem(display_text, device_id)
+    
+
+    def get(self):
+        text = self.input.text()
 
 
 
