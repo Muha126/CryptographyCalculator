@@ -4,10 +4,39 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit
 from PyQt6.QtCore import Qt
 from calculator import evaluateExpression, PyCalc
+import usb.core
+import os
+import sqlite3
+
+
 WINDOW_SIZE = 400
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
+enc_dir = 'C:/Users/umaro/Desktop/Projects/CryptographyCalculator/enc_data'
+enc_path = os.path.join(enc_dir, "enc_data.db")
+key_dir = 'C:/Users/umaro/Desktop/Projects/CryptographyCalculator/keys'
+key_path = os.path.join(key_dir, "keys.db")
 
+
+connection = sqlite3.connect(enc_path)
+cursor = connection.cursor()
+cursor.execute("""
+        CREATE TABLE IF NOT EXISTS enc_data(
+            id integer PRIMARY KEY AUTOINCREMENT,
+            usb TEXT UNIQUE NOT NULL,
+            encrypted_data BLOB NOT NULL
+        );
+     """)
+connection = sqlite3.connect(key_path)
+cursor = connection.cursor()
+cursor.execute("""
+        CREATE TABLE IF NOT EXISTS keys(
+            id integer PRIMARY KEY AUTOINCREMENT,
+            public_key TEXT NOT NULL
+        );
+     """)
+connection.commit()
+connection.close
 
 class encryptedWindow(QMainWindow):
     """Create window with encrypted data"""
@@ -19,6 +48,8 @@ class encryptedWindow(QMainWindow):
         self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
         self.generalLayout = QVBoxLayout()
         self.centralWidget = QWidget(self)
+        self.input = QLineEdit(self)
+        self.input.move(150,150)
 
 
 
