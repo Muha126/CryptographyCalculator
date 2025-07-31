@@ -2,7 +2,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from calculator import evaluateExpression, PyCalc
 import usb.core
 import wmi
@@ -52,6 +52,7 @@ class encryptedWindow(QMainWindow):
 
     def __init__(self):
         """Window and its parameters."""
+        ###make all this lines funcitons
         super().__init__()
         self.setWindowTitle("Encrypted Data")
         self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
@@ -62,18 +63,29 @@ class encryptedWindow(QMainWindow):
         self.input = QLineEdit(self)
         self.input.setFixedSize(350,50)
         self.input.move(30,30)
-        button = QPushButton("Encrypt and write")
-        
+        button = QPushButton("Encrypt and write")      
         button.clicked.connect(self.get)
         self.generalLayout.addWidget(button)
         self.UsbSelector = QComboBox()
         self.generalLayout.addWidget(self.UsbSelector)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.refresh_usb_list)
+        self.timer.start(2000)
+        self.current_usb_set = set()
         self.refresh_usb_list()
+        self.UsbSelector.addItem("Choose USB drive:")
+        self.UsbSelector.setCurrentIndex(0)
+        self.UsbSelector.model().item(0).setEnabled(False)
     
     
     def refresh_usb_list(self):
-        self.UsbSelector.clear()
         drives = get_usb_drives()
+        new_usb_set = set(drives)
+        if new_usb_set != self.current_usb_set:
+            self.current_usb_set = new_usb_set
+            self.UsbSelector.clear()
+            self.UsbSelector.addItem("Choose USB drive:")
+            self.UsbSelector.model().item(0).setEnabled(False)
         for device_id, volume_name in drives:
             display_text = f"{device_id} = {volume_name}" if volume_name else device_id
             self.UsbSelector.addItem(display_text, device_id)
