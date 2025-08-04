@@ -4,7 +4,8 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
 from PyQt6.QtCore import Qt, QTimer
 from calculator import evaluateExpression, PyCalc
-import usb.core
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
 import wmi
 import os
 import sqlite3
@@ -15,8 +16,6 @@ DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
 enc_dir = 'C:/Users/umaro/Desktop/Projects/CryptographyCalculator/enc_data'
 enc_path = os.path.join(enc_dir, "enc_data.db")
-key_dir = 'C:/Users/umaro/Desktop/Projects/CryptographyCalculator/keys'
-key_path = os.path.join(key_dir, "keys.db")
 
 def get_usb_drives():
     c = wmi.WMI()
@@ -36,16 +35,8 @@ cursor.execute("""
             encrypted_data BLOB NOT NULL
         );
      """)
-connection = sqlite3.connect(key_path)
-cursor = connection.cursor()
-cursor.execute("""
-        CREATE TABLE IF NOT EXISTS keys(
-            id integer PRIMARY KEY AUTOINCREMENT,
-            public_key TEXT NOT NULL
-        );
-     """)
 connection.commit()
-connection.close
+connection.close()
 
 class encryptedWindow(QMainWindow):
     """Create window with encrypted data"""
@@ -76,6 +67,9 @@ class encryptedWindow(QMainWindow):
         self.UsbSelector.addItem("Choose USB drive:")
         self.UsbSelector.setCurrentIndex(0)
         self.UsbSelector.model().item(0).setEnabled(False)
+
+
+    
     
     
     def refresh_usb_list(self):
@@ -92,7 +86,67 @@ class encryptedWindow(QMainWindow):
     
 
     def get(self):
-        text = self.input.text()
+        from PyQt6.QtWidgets import QMessageBox
+
+        text = self.input.text().strip()
+        if not text:
+            QMessageBox.warning(self, "Input Error", "Введите текст для шифрования.")
+            return
+
+        """Generating RSA"""
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_key = private_key.public_key()
+
+        """Encrypting text"""
+        try:
+            encrypted = public_key.encrypt(
+                text.encode(),
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Encryption Error", f"Ошибка шифрования: {e}")
+            return
+
+        """Get USB"""
+        index = self.UsbSelector.currentIndex()
+        if index <= 0:
+            QMessageBox.warning(self, "USB Error", "Выберите USB-накопитель.")
+            return
+        usb_path = self.UsbSelector.currentData()
+
+        """Save key on USB"""
+        try:
+            private_bytes = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            with open(os.path.join(usb_path, "private_key.pem"), "wb") as f:
+                f.write(private_bytes)
+        except Exception as e:
+            QMessageBox.critical(self, "Write Error", f"Не удалось записать ключ: {e}")
+            return
+
+        """Save data in DB"""
+        try:
+            connection = sqlite3.connect(enc_path)
+            cursor = connection.cursor()
+            cursor.execute(
+                "INSERT OR REPLACE INTO enc_data (usb, encrypted_data) VALUES (?, ?)",
+                (usb_path, encrypted)
+            )
+            connection.commit()
+            connection.close()
+        except Exception as e:
+            QMessageBox.critical(self, "DB Error", f"Ошибка записи в БД: {e}")
+            return
+
+        QMessageBox.information(self, "Success", "Успешно зашифровано и записано на USB.")
+        self.input.clear()
 
 
 
