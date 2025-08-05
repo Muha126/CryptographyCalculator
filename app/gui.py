@@ -2,6 +2,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
+from PyQt6.QtWidgets import QFileDialog, QMessageBox, QTextEdit
 from PyQt6.QtCore import Qt, QTimer
 from calculator import evaluateExpression, PyCalc
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -38,6 +39,84 @@ cursor.execute("""
 connection.commit()
 connection.close()
 
+
+def is_data_in_db():
+    connection = sqlite3.connect(enc_path)
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM enc_data")
+    count = cursor.fetchone()[0]
+    connection.close()
+    return count > 0
+
+
+class DecryptionWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Decrypt Data")
+        self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
+        layout = QVBoxLayout()
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+        self.text_box = QTextEdit()
+        layout.addWidget(self.text_box)
+
+        self.decrypt_data()
+
+        btn_delete = QPushButton("Delete data from DB")
+        btn_close = QPushButton("Close")
+        layout.addWidget(btn_delete)
+        layout.addWidget(btn_close)
+
+        btn_delete.clicked.connect(self.delete_data)
+        btn_delete.clicked.connect(self.close)
+        btn_close.clicked.connect(self.close)
+
+    def decrypt_data(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Choose prive key", "", "PEM files (*.pem)")
+        if not file_path:
+            QMessageBox.warning(self, "Eror", "Key is not chosen")
+            self.close()
+            return
+
+        try:
+            with open(file_path, "rb") as f:
+                private_key = serialization.load_pem_private_key(f.read(), password=None)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Couldn't open key {e}")
+            self.close()
+            return
+
+        try:
+            conn = sqlite3.connect(enc_path)
+            cur = conn.cursor()
+            cur.execute("SELECT encrypted_data FROM enc_data LIMIT 1")
+            encrypted_data = cur.fetchone()[0]
+            conn.close()
+
+            decrypted = private_key.decrypt(
+                encrypted_data,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+
+            self.text_box.setText(decrypted.decode())
+        except Exception as e:
+            QMessageBox.critical(self, "Encryptioin error", str(e))
+            self.close()
+
+    def delete_data(self):
+        conn = sqlite3.connect(enc_path)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM enc_data")
+        conn.commit()
+        conn.close()
+        QMessageBox.information(self, "Deleted", "Data is deleted")
+        self.text_box.clear()
 class encryptedWindow(QMainWindow):
     """Create window with encrypted data"""
 
@@ -90,7 +169,7 @@ class encryptedWindow(QMainWindow):
 
         text = self.input.text().strip()
         if not text:
-            QMessageBox.warning(self, "Input Error", "Введите текст для шифрования.")
+            QMessageBox.warning(self, "Input Error", "Enter text for encryption")
             return
 
         """Generating RSA"""
@@ -108,13 +187,13 @@ class encryptedWindow(QMainWindow):
                 )
             )
         except Exception as e:
-            QMessageBox.critical(self, "Encryption Error", f"Ошибка шифрования: {e}")
+            QMessageBox.critical(self, "Encryption Error", f"Encryption error: {e}")
             return
 
         """Get USB"""
         index = self.UsbSelector.currentIndex()
         if index <= 0:
-            QMessageBox.warning(self, "USB Error", "Выберите USB-накопитель.")
+            QMessageBox.warning(self, "USB Error", "Choose USB:")
             return
         usb_path = self.UsbSelector.currentData()
 
@@ -128,7 +207,7 @@ class encryptedWindow(QMainWindow):
             with open(os.path.join(usb_path, "private_key.pem"), "wb") as f:
                 f.write(private_bytes)
         except Exception as e:
-            QMessageBox.critical(self, "Write Error", f"Не удалось записать ключ: {e}")
+            QMessageBox.critical(self, "Write Error", f"Unable to save key: {e}")
             return
 
         """Save data in DB"""
@@ -142,11 +221,12 @@ class encryptedWindow(QMainWindow):
             connection.commit()
             connection.close()
         except Exception as e:
-            QMessageBox.critical(self, "DB Error", f"Ошибка записи в БД: {e}")
+            QMessageBox.critical(self, "DB Error", f"Unable to save to data base: {e}")
             return
 
-        QMessageBox.information(self, "Success", "Успешно зашифровано и записано на USB.")
+        QMessageBox.information(self, "Success", "Succesfully encrypted and created key")
         self.input.clear()
+        self.close()
 
 
 
@@ -212,8 +292,11 @@ class PyCalcWindow(QMainWindow):
 
     def trigger(self):
         if self.display.text() == "1337*1337":
-            self.encryptedWindowInstance = encryptedWindow()
-            self.encryptedWindowInstance.show() 
+            if is_data_in_db():
+                self.encryptedWindowInstance = DecryptionWindow()
+            else:
+                self.encryptedWindowInstance = encryptedWindow()
+            self.encryptedWindowInstance.show()
 
 
 def main():
