@@ -1,38 +1,3 @@
-<a id="readme-top"></a>
-
-<!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/cryptography-calculator">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Cryptography Calculator</h3>
-
-  <p align="center">
-    A calculator with a hidden asymmetric encryption engine. Secure and stealthy.
-    <br />
-    <a href="https://github.com/github_username/cryptography-calculator"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/github_username/cryptography-calculator">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/cryptography-calculator/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/cryptography-calculator/issues">Request Feature</a>
-  </p>
-</div>
-
----
-
 ## 📌 About The Project
 
 Cryptography Calculator looks like a regular math calculator... until you enter the secret code.
@@ -76,3 +41,4 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+Run from gui.py
