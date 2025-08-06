@@ -113,3 +113,4 @@ Decryption is only triggered when encrypted data is present.
 All encryption keys are unique per session and stored only on the USB drive.
 
 If the USB with the private key is lost, the data cannot be recovered.
+```
