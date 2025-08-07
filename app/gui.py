@@ -1,8 +1,7 @@
 """GUI for calculator."""
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
-from PyQt6.QtWidgets import QFileDialog, QMessageBox, QTextEdit
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QTextEdit, QVBoxLayout, QWidget, QGridLayout, QLineEdit, QComboBox
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtCore import Qt, QTimer
 from calculator import evaluateExpression, PyCalc
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -298,6 +297,24 @@ class PyCalcWindow(QMainWindow):
                 self.encryptedWindowInstance = encryptedWindow()
             self.encryptedWindowInstance.show()
 
+    
+    def keyPressEvent(self, event: QKeyEvent):
+        """keyboard press"""
+        key = event.text()
+
+        if key in "0123456789.+-*/()":
+            self.setDisplayText(self.displayText() + key)
+
+        elif event.key() == Qt.Key.Key_Backspace:
+            self.setDisplayText(self.displayText()[:-1])
+
+        elif event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
+            if "=" in self.buttonMap:
+                self.buttonMap["="].click()
+
+        elif event.key() == Qt.Key.Key_Escape:
+            if "C" in self.buttonMap:
+                self.buttonMap["C"].click()
 
 def main():
     """Executes window."""
