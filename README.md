@@ -1,116 +1,109 @@
-## 📌 About The Project
+##  Getting Started
 
-Cryptography Calculator looks like a regular math calculator... until you enter the secret code.
+To get a local copy up and running, follow these simple steps.
 
-Once triggered, it allows you to:
-- Input sensitive text
-- Asymmetrically encrypt it (using RSA 2048)
-- Store the encrypted data in an SQLite database
-- Write the private key to a connected USB drive
-- Later decrypt the data by inserting the USB with the key file
+###  Prerequisites
 
-If encrypted data exists in the database, it prompts for a key to decrypt and display it, with options to delete or close.
+- Python 3.11+
+- pip (Python package manager)
 
-> Use it to hide sensitive notes, passwords, or secrets on shared computers without raising suspicion.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
-
-## ⚙️ Built With
-
-* [PyQt6](https://pypi.org/project/PyQt6/) - GUI framework
-* [cryptography](https://cryptography.io/en/latest/) - for RSA encryption
-* [sqlite3](https://docs.python.org/3/library/sqlite3.html) - for storing encrypted data
-* [wmi](https://pypi.org/project/WMI/) - for detecting USB drives (Windows only)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
-
-## 🧪 Getting Started
-
-To get a local copy up and running follow these simple steps.
-
-### ✅ Prerequisites
-
-* Python 3.11+
-* pip (Python package manager)
-
-Install dependencies:
+###  Install dependencies
 
 ```bash
 pip install -r requirements.txt
-Run from gui.py
-## Usage
+```
 
-Cryptography Calculator has two modes:  
-A regular calculator mode  
-A hidden encryption mode (triggered by a secret code)
-
----
-
-### Secret Mode Walkthrough
-
-#### 1. Start the application
+###  Run the app
 
 ```bash
 python gui.py
+```
+
+---
+
+##  Usage
+
+Cryptography Calculator has two modes:
+
+- A regular calculator mode  
+- A hidden encryption mode (triggered by a secret code)
+
+---
+
+##  Secret Mode Walkthrough
+
+### 1. Start the application
+
+```bash
+python gui.py
+```
+
 You’ll see a simple calculator interface.
 
-<p align="center"> <img src="https://via.placeholder.com/400x200.png?text=Calculator+GUI" alt="Calculator GUI" /> </p>
-2. Enter the secret code
+<p align="center">
+  <img src="https://i.imgur.com/4zQ6UUu.png" alt="Calculator GUI" width="400" />
+</p>
+
+---
+
+### 2. Enter the secret code
+
 Type:
 
-yaml
-Copy
-Edit
+```
 1337*1337
-and press =.
+```
 
-This will unlock the encryption panel.
+and press `=`. This will unlock the encryption panel.
 
-<p align="center"> <img src="https://via.placeholder.com/400x200.png?text=Secret+Code+Entered" alt="Secret Trigger Example" /> </p>
-3. If no encrypted data is found in the database
-You’ll be prompted to insert a USB drive
+<p align="center">
+  <img src="https://i.imgur.com/4ixwZa0.png" alt="Secret Trigger Example" width="400" />
+</p>
 
-Enter the text you want to encrypt
+---
 
-Select the USB drive from the dropdown list
+### 3. If no encrypted data is found
 
-Click the Encrypt and Write button
+You’ll be prompted to insert a USB drive.
+
+- Enter the text you want to encrypt
+- Select the USB drive from the dropdown
+- Click **Encrypt and Write**
 
 What happens:
 
-The text is encrypted using RSA 2048
+- The text is encrypted using RSA 2048
+- Private key is saved to USB as `private_key.pem`
+- Encrypted message stored in SQLite database
 
-The private key is saved to your USB as private_key.pem
+<p align="center">
+  <img src="https://i.imgur.com/ChbkFaS.png" alt="Encryption Panel" width="400" />
+</p>
 
-The encrypted message is stored in an SQLite database
+---
 
-<p align="center"> <img src="https://via.placeholder.com/400x200.png?text=Encryption+Panel" alt="Encryption Panel" /> </p>
-4. If encrypted data already exists
-You’ll see a prompt asking you to decrypt:
+### 4. If encrypted data already exists
 
-Insert the USB with the private_key.pem file
+You’ll see a prompt asking you to decrypt.
 
-Select the key file when prompted
+- Insert the USB with `private_key.pem`
+- Select the key file when prompted
+- The app will decrypt the message if the key matches
 
-The application will decrypt the message if the key matches
+Then you can:
 
-You now have two options:
+- **Close** – to hide the decrypted message
+- **Delete** – to remove the encrypted data
 
-Close – to hide the decrypted message
+<p align="center">
+  <img src="https://i.imgur.com/p7CIvyT.pngI" alt="Decryption UI" width="400" />
+</p>
 
-Delete – to remove the encrypted data from the database
+---
 
-<p align="center"> <img src="https://via.placeholder.com/400x200.png?text=Decrypted+Message+UI" alt="Decryption UI" /> </p>
-Notes
-Encryption is only available when no encrypted data exists.
+##  Notes
 
-Decryption is only triggered when encrypted data is present.
-
-All encryption keys are unique per session and stored only on the USB drive.
-
-If the USB with the private key is lost, the data cannot be recovered.
-```
+- Encryption is only available if no encrypted data exists.
+- Decryption is only triggered when encrypted data is present.
+- Keys are unique per session and stored only on the USB.
+- If the USB is lost, the data **cannot be recovered**.
