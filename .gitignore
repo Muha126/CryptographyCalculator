@@ -1,9 +1,35 @@
-.env
-.envrc
-.venv
-env/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environments
+.venv/
 venv/
 ENV/
+env/
 env.bak/
 venv.bak/
+
+# Environment files
+.env
+.envrc
+
+# SQLite database
 *.db
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Logs or temporary files
+*.log
+
+# VSCode config
+.vscode/
