@@ -1,1 +1,7 @@
-pyqt6
+cffi==1.17.1
+cryptography==45.0.5
+pycparser==2.22
+PyQt6-Qt6==6.9.1
+PyQt6_sip==13.10.2
+pywin32==311
+WMI==1.5.1
