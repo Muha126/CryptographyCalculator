@@ -159,9 +159,9 @@ class encryptedWindow(QMainWindow):
             self.UsbSelector.clear()
             self.UsbSelector.addItem("Choose USB drive:")
             self.UsbSelector.model().item(0).setEnabled(False)
-        for device_id, volume_name in drives:
-            display_text = f"{device_id} = {volume_name}" if volume_name else device_id
-            self.UsbSelector.addItem(display_text, device_id)
+            for device_id, volume_name in drives:
+                display_text = f"{device_id} = {volume_name}" if volume_name else device_id
+                self.UsbSelector.addItem(display_text, device_id)
     
 
     def get(self):
